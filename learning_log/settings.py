@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from logging import debug
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-mej!)g)o+rbqpuxpxxn+n=p6a%ri2i209j$#e)s^=*g6!i6jvg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -147,3 +148,8 @@ INTERNAL_IPS = {
 
 import django_heroku
 django_heroku.settings(locals())
+
+if os.environ.get('DEBUG') == "TRUE":
+    DEBUG = True
+elif os.environ.get("DEBUG") == "FALSE":
+    DEBUG = False
