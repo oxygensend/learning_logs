@@ -5,12 +5,31 @@
 {% endblock page_header %}
 {% block content %}
     <ul>
-        {%for topic in topics%}
+        <h5>Moje tematy</h5>
+        {%for topic in topics_private%}
             <li><h5>
                 <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
-            </h5></li>
+            </h5>
+            {% if topic.access == "1" %}
+              <p>Prywatny</p>
+            {% else %}
+                <p> Publiczny</p>
+            {% endif %}
+            </li>
             {% empty %}
             <li><h3>Nie został jeszcze dodany żaden temat.</h3></li>
+        {%endfor%}    
+
+
+        <h5>Tematy publiczne</h5>
+
+        {%for topic in topics_public%}
+            <li><h5>
+                <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
+            </h5>
+            <p>Autor: {{topic.owner }} {{topic.date_added}}</p>
+            </li>
+        
         {%endfor%}    
     </ul>
 

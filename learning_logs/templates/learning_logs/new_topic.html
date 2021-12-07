@@ -10,7 +10,7 @@
 <form class="form" action="{% url 'learning_logs:new_topic' %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form %}
-
+    
 <button class="btn btn-primary" name="submit"> Dodaj temat</button>
 
 </form>

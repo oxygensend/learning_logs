@@ -1,17 +1,27 @@
 {% extends "learning_logs/base.html" %}
-
+{% load bootstrap4 %}
 {% block page_header %}
 <h2> {{ topic }}</h2>
 {% endblock page_header %}
 
 {% block content %}
 
+{% if form %}
+<form class="form" method="post" action="{% url 'learning_logs:topic' topic.id %}">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  
+<button class="btn btn-primary" name="submit"> Zmień dostęp</button>
+</form>
+{%endif%}
+</br></br>
 <a href="{% url 'learning_logs:new_entry' topic.id %}">Dodaj nowy wpis</a>
 <ul>
     {% for entry in entries%}
     <div class="card mb-3 mt-3">
-    <h4 class="card-header">{{ entry.date_added|date:'d M Y H:i' }}
-    <small> <a href="{% url 'learning_logs:edit_entry' entry.id %}">Edytuj wpis</a>
+    <h4 class="card-header"> {{entry.date_added|date:'d M Y H:i' }} 
+    <small> {% if entry.creator == user %} <a href="{% url 'learning_logs:edit_entry' entry.id %}">Edytuj wpis</a> {% endif %}
+    Autor: {{entry.creator}}
     </small> </h4>
       <div class="card-body">
         {{entry.text|linebreaks}}

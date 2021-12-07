@@ -3,10 +3,10 @@
 {% block content %}
 <p><a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a></p>
 <p>Edycja wipsu: </p>
-<form action="{% url 'learning_logs:edit_entry' entry.id %}" method="post">
+<form class="form" action="{% url 'learning_logs:edit_entry' entry.id %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-<button name="submit">Zapisz zmiany</button>
+<button class="btn btn-primary" name="submit">Zapisz zmiany</button>
 </form>
 
 {% endblock content %}

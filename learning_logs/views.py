@@ -2,7 +2,7 @@ from django.contrib.auth import login
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from .forms import TopicForm, EntryForm
+from .forms import TopicAccessForm, TopicForm, EntryForm
 from .models import Topic, Entry
 # Create your views here.
 
@@ -16,8 +16,10 @@ def index(request):
 @login_required
 def topics(request):
     """ Display all topics."""
-    topics = Topic.objects.filter(owner=request.user).order_by('date_added')
-    context = {'topics': topics}
+    topics_public = Topic.objects.filter(access=False).exclude(owner=request.user).order_by('date_added')
+    topics_private = Topic.objects.filter(owner=request.user).order_by('date_added')
+    context = {'topics_public': topics_public,
+               'topics_private': topics_private}
     return render(request, 'learning_logs/topics.html', context)
 
 @login_required
@@ -26,12 +28,28 @@ def topic(request, topic_id):
     
     topic = get_object_or_404(Topic, pk=topic_id)
     
-    if not check_topic_owner(request, topic):
+    if not check_topic_owner(request, topic) and \
+       topic.access == "1":
         raise Http404
 
     entries = topic.entry_set.order_by('-date_added')
+
+    if not check_topic_owner(request, topic):
+        context = { 'topic': topic,
+                'entries': entries,  
+                }
+        return render(request, 'learning_logs/topic.html', context)
+    
+    if request.method != 'POST':
+        form = TopicAccessForm(instance=topic)
+    else:
+        form = TopicAccessForm(instance=topic,data=request.POST)
+        if form.is_valid():
+            form.save()
+        
     context = { 'topic': topic,
                 'entries': entries,
+                'form': form
             }
     return render(request, 'learning_logs/topic.html', context)
     
@@ -43,14 +61,13 @@ def new_topic(request):
         form = TopicForm(request.user)
     else:
         form = TopicForm(request.user, data=request.POST)
-        print(request.POST)
         if form.is_valid():
 
             new_topic = form.save(commit=False)
             new_topic.owner = request.user
             new_topic.save()
             return redirect('learning_logs:topics')
-    
+
     context = {'form': form}
     return render(request, 'learning_logs/new_topic.html', context)
 
@@ -61,15 +78,17 @@ def new_entry(request, topic_id):
     
     topic = get_object_or_404(Topic, pk=topic_id)
     
-    if not check_topic_owner(request, topic):
+    if not check_topic_owner(request, topic) and \
+        topic.access == '1':
         raise Http404
 
     if request.method != 'POST':
         form = EntryForm(topic)
     else:
-        form = EntryForm(topic, data=request.POST)
+        form = EntryForm(topic,data=request.POST)
         if form.is_valid():
             new_entry = form.save(commit=False)
+            new_entry.creator = request.user
             new_entry.topic = topic
             new_entry.save()
             return redirect('learning_logs:topic', topic_id)
@@ -84,15 +103,17 @@ def edit_entry(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
     topic = entry.topic
 
-    if not check_topic_owner(request, topic):
+    if not check_topic_owner(request, topic) and \
+        topic.access == "1":
         raise Http404
 
     if request.method != 'POST':
         form = EntryForm(topic, instance=entry)
     else:
         form = EntryForm(topic, instance=entry, data=request.POST)
+        entry.creator = request.user;
         form.save()
-        return redirect('learning_logs/topic', topic.id)
+        return redirect('learning_logs:topic', topic.id)
 
     context = {'topic': topic, 'entry': entry, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)

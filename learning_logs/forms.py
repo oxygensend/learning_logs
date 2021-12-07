@@ -9,14 +9,21 @@ class TopicForm(forms.ModelForm):
         self.owner = user;
     class Meta:
         model = Topic
-        fields = ['text']
-        labels = {'text':''}
+        fields = ['text', 'access']
+        labels = {'text':'', 'access':'Dostęp'}
 
     def clean_text(self):
         text = self.cleaned_data['text']
         if Topic.objects.filter(text__iexact=text, owner=self.owner).exists():
             raise forms.ValidationError("Temat o tej nazwie już istnieje", code="topic_exists")
         return text
+
+class TopicAccessForm(forms.ModelForm):
+
+    class Meta:
+        model = Topic
+        fields = ['access']
+        labels = {'access': ''}
 
 class EntryForm(forms.ModelForm):
 
