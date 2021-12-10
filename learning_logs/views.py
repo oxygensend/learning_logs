@@ -26,17 +26,20 @@ def topics(request):
 def topic(request, topic_id):
     """ Display one topic and all his entries."""
     
+    changed = False
     topic = get_object_or_404(Topic, pk=topic_id)
     
     if not check_topic_owner(request, topic) and \
-       topic.access == "1":
+       topic.access:
         raise Http404
+    
 
     entries = topic.entry_set.order_by('-date_added')
 
     if not check_topic_owner(request, topic):
         context = { 'topic': topic,
-                'entries': entries,  
+                'entries': entries,
+                
                 }
         return render(request, 'learning_logs/topic.html', context)
     
@@ -44,12 +47,14 @@ def topic(request, topic_id):
         form = TopicAccessForm(instance=topic)
     else:
         form = TopicAccessForm(instance=topic,data=request.POST)
+        changed = True
         if form.is_valid():
             form.save()
         
     context = { 'topic': topic,
                 'entries': entries,
-                'form': form
+                'form': form,
+                'changed': changed
             }
     return render(request, 'learning_logs/topic.html', context)
     
@@ -71,6 +76,21 @@ def new_topic(request):
     context = {'form': form}
     return render(request, 'learning_logs/new_topic.html', context)
 
+@login_required
+def delete_topic(request, topic_id):
+    """ Deleting topic """
+
+    topic = get_object_or_404(Topic, pk=topic_id);
+
+    if not check_topic_owner(request,topic):
+        raise Http404
+
+    if request.method == 'POST':
+        topic.delete()
+        return redirect('learning_logs:topics')    
+    
+    return render(request,'learning_logs/delete_topic.html', {'topic': topic})
+
 
 @login_required
 def new_entry(request, topic_id):
@@ -79,7 +99,7 @@ def new_entry(request, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
     
     if not check_topic_owner(request, topic) and \
-        topic.access == '1':
+        topic.access:
         raise Http404
 
     if request.method != 'POST':
@@ -104,16 +124,17 @@ def edit_entry(request, entry_id):
     topic = entry.topic
 
     if not check_topic_owner(request, topic) and \
-        topic.access == "1":
+        topic.access or request.user != entry.creator:
         raise Http404
 
     if request.method != 'POST':
         form = EntryForm(topic, instance=entry)
     else:
         form = EntryForm(topic, instance=entry, data=request.POST)
-        entry.creator = request.user;
-        form.save()
-        return redirect('learning_logs:topic', topic.id)
+        if form.is_valid():
+        
+            form.save()
+            return redirect('learning_logs:topic', topic.id)
 
     context = {'topic': topic, 'entry': entry, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)
@@ -123,9 +144,13 @@ def edit_entry(request, entry_id):
 def delete_entry(request, entry_id):
     """Delete entry of topic"""
 
-    entry = get_object_or_404(Entry, pk=entry_id)
-    entry.delete()
-
-    return render(request, 'learning_logs/topic', topic.id)
- 
+    entry= get_object_or_404(Entry, pk=entry_id);
+    topic = entry.topic
+    if request.user != entry.creator:
+        raise Http404
+        
+    if request.method == 'POST':
+        entry.delete()
+        return redirect('learning_logs:topic', topic.id)    
     
+    return render(request,'learning_logs/delete_entry.html', {'topic': topic})

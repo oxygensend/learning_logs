@@ -7,18 +7,23 @@
     <ul>
         <h5>Moje tematy</h5>
         {%for topic in topics_private%}
+        
             <li><h5>
                 <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
             </h5>
-            {% if topic.access == "1" %}
-              <p>Prywatny</p>
+            <p style="font-size: 13px;">Dostęp:  {% if topic.access %}
+                prywatny
             {% else %}
-                <p> Publiczny</p>
-            {% endif %}
+                publiczny
+            {% endif %}  </p>
+            
             </li>
             {% empty %}
             <li><h3>Nie został jeszcze dodany żaden temat.</h3></li>
-        {%endfor%}    
+        
+            
+            {%endfor%}
+
 
 
         <h5>Tematy publiczne</h5>
@@ -27,7 +32,7 @@
             <li><h5>
                 <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
             </h5>
-            <p>Autor: {{topic.owner }} {{topic.date_added}}</p>
+            <p style="font-size: 13px;">Autor: {{topic.owner }} {{topic.date_added}}</p>
             </li>
         
         {%endfor%}    

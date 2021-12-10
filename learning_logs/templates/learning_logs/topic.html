@@ -1,7 +1,7 @@
 {% extends "learning_logs/base.html" %}
 {% load bootstrap4 %}
 {% block page_header %}
-<h2> {{ topic }}</h2>
+<h2> <a href="{% url 'learning_logs:topics'%}">{{ topic }}</a></h2>
 {% endblock page_header %}
 
 {% block content %}
@@ -13,7 +13,16 @@
   
 <button class="btn btn-primary" name="submit"> Zmień dostęp</button>
 </form>
+  
 {%endif%}
+
+{% if changed %}
+      <p>Dostęp został zmieniony.</p>
+  {% endif %}
+
+{% if topic.owner == user %}
+</br><a href="{% url 'learning_logs:delete_topic' topic.id %}"> Usuń temat</a>
+{% endif %}
 </br></br>
 <a href="{% url 'learning_logs:new_entry' topic.id %}">Dodaj nowy wpis</a>
 <ul>
@@ -21,7 +30,7 @@
     <div class="card mb-3 mt-3">
     <h4 class="card-header"> {{entry.date_added|date:'d M Y H:i' }} 
     <small> {% if entry.creator == user %} <a href="{% url 'learning_logs:edit_entry' entry.id %}">Edytuj wpis</a> {% endif %}
-    Autor: {{entry.creator}}
+    Autor: {{entry.creator}} 
     </small> </h4>
       <div class="card-body">
         {{entry.text|linebreaks}}

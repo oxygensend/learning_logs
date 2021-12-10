@@ -38,10 +38,10 @@ class EntryForm(forms.ModelForm):
         labels = {'text': ''}
         widgets = {'text': forms.Textarea(attrs={'cols':80})}
     
-    def clean_text(self):
-        text = self.cleaned_data['text']
-        if Entry.objects.filter(text__iexact=text, topic=self.topic).exists():
-            raise forms.ValidationError("Taki wpis juz istnieje")
-        return text
+    # def clean_text(self):
+    #     text = self.cleaned_data['text']
+    #     if Entry.objects.filter(text__iexact=text, topic=self.topic).exists():
+    #         raise forms.ValidationError("Taki wpis juz istnieje")
+    #     return text
 
         

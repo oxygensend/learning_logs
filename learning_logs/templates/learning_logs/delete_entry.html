@@ -1,0 +1,16 @@
+{% extends "learning_logs/base.html" %}
+{% load bootstrap4 %}
+{% block page_header %}
+<h2><a href="{% url 'learning_logs:topic' topic.id %}">{{topic}}</a></h2>
+{% endblock page_header %}
+
+{% block content %}
+
+    {% if topic %}
+    <form class="form" method="post" action=".">
+        {% csrf_token %}
+        <p>Czy na pewno chcesz usunąć wpis ?</p>
+        <button  class="btn btn-primary"  type="submit">Usuń</button>
+    </form>
+    {% endif %}
+{% endblock content %}
