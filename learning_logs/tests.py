@@ -1,6 +1,8 @@
 from django.db.models.query import QuerySet
-from django.test import TestCase
+from django.test import TestCase, testcases
 from django.urls import reverse
+
+from users.models import MyGroup
 from .models import Topic, User, Entry
 from .forms import TopicForm, EntryForm, TopicAccessForm
 # Create your tests here.
@@ -233,5 +235,14 @@ class EntryFormTests(TestCase):
         return self.assertQuerysetEqual(response.context['entries'],
                             [])
 
+class GroupTest(TestCase):
+    def setUp(self):
+        self.user = createUser('foo', 'foo123')
+        self.client.login(username='foo', password='foo123')
 
+    def test_creating_new_group(self):
 
+        group = MyGroup.objects.create(name='test_group',admin=self.user)
+        response = self.client.post(reverse('users:groups'))
+
+        return self.assertQuerysetEqual(response.context['groups'], [group])

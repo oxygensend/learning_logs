@@ -1,0 +1,34 @@
+{% extends "learning_logs/base.html" %}
+
+{% block page_header %}
+<a href="{% url 'users:groups' %}"><h2> {{group}}</h2></a>
+{% endblock page_header %}
+{% block content %}
+<h3>Członkowie</h4>
+<ul>
+{% for user in group.user_set.all %}
+<li><h5>
+    {{ user.username }}
+</h5>
+{%endfor%}
+</ul>
+
+<h3>Tematy</h3>
+
+<ul>
+    {%for topic in topics%}
+    
+        <li><h5>
+            <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
+        </h5></li>
+        {% empty %}
+        <li><h5>Nie został jeszcze dodany żaden temat.</h5></li>
+        {%endfor%}
+
+</ul>
+
+{% if admin %}
+<h5><a href="{% url 'users:add_to_group' group.id %} ">Dodaj do grupy</a></h5>
+<h5><a href="{%  url 'users:delete_group' group.id %}">Usuń grupe</a></h5>
+{% endif %}
+{% endblock content %}

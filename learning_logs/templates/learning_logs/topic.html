@@ -31,6 +31,7 @@
     <h4 class="card-header"> {{entry.date_added|date:'d M Y H:i' }} 
     <small> {% if entry.creator == user %} <a href="{% url 'learning_logs:edit_entry' entry.id %}">Edytuj wpis</a> {% endif %}
     Autor: {{entry.creator}} 
+    
     </small> </h4>
       <div class="card-body">
         {{entry.text|linebreaks}}

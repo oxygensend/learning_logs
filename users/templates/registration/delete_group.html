@@ -1,0 +1,16 @@
+{% extends "learning_logs/base.html" %}
+{% load bootstrap4 %}
+{% block page_header %}
+<h2><a href="{% url 'users:group' group.id %}">{{group}}</a></h2>
+{% endblock page_header %}
+
+{% block content %}
+
+ 
+    <form class="form" method="post" action=".">
+        {% csrf_token %}
+        <p>Czy na pewno chcesz usunąć grupe ?</p>
+        <button  class="btn btn-primary"  type="submit">Usuń</button>
+    </form>
+  
+{% endblock content %}
