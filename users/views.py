@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
+from django.core.exceptions import ValidationError
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login
@@ -104,14 +105,15 @@ def add_to_group(request, group_id):
         raise Http404
 
     if request.method != 'POST':
-        form = NewMemberForm()
+        form = NewMemberForm(group)
     else:
-        pass
-        #form = NewMemberForm(data=request.POST)
-        #group.user_set.add(form)
+        form = NewMemberForm(group, data=request.POST)
+        if form.is_valid():
+            user =  User.objects.filter(username=form.cleaned_data['username']).exclude(groups__name=group.name)
+            group.user_set.add(user.get().id)
+            return redirect('users:group', group.id)
 
     context = {'group': group, 'form': form}
-
     return render(request, 'registration/add_to_group.html', context)
 
 
