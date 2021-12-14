@@ -70,12 +70,12 @@ def group(request, group_id):
     """ Display one group and all his topics and users"""
 
     group = get_object_or_404(MyGroup, pk=group_id)
-    #topics = Topic.objects.filter(group=)
+    topics = Topic.objects.filter(group=group)
     if not check_group_admin(group, request):
         context = {'group': group, 'admin': False}
         return render(request,'registration/group.html', context)    
 
-    context = {'group': group, 'admin': True}
+    context = {'group': group,'topics': topics, 'admin': True}
 
     return render(request,'registration/group.html', context)
 
@@ -115,6 +115,5 @@ def add_to_group(request, group_id):
 
     context = {'group': group, 'form': form}
     return render(request, 'registration/add_to_group.html', context)
-
 
 

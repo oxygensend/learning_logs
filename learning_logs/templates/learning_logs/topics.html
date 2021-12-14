@@ -11,7 +11,7 @@
             <li><h5>
                 <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
             </h5>
-            <p style="font-size: 13px;">Dostęp:  {% if topic.access %}
+            <p style="font-size: 13px;">Dostęp:  {% if topic.access == "priv" %}
                 prywatny
             {% else %}
                 publiczny

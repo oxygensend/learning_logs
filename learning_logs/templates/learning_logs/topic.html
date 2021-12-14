@@ -6,7 +6,7 @@
 
 {% block content %}
 
-{% if form %}
+{% if form and  topic.group == -1%}
 <form class="form" method="post" action="{% url 'learning_logs:topic' topic.id %}">
   {% csrf_token %}
   {% bootstrap_form form %}

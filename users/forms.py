@@ -27,4 +27,5 @@ class NewMemberForm(forms.Form):
         elif user.exists():
             return username
         else:
+
             raise ValidationError("Taki użytkownik nie istnieje", code="user_does_not_exist")

@@ -1,20 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.deletion import CASCADE
+
+from users.models import MyGroup
 # Create your models here.
 
 class Topic(models.Model):
     """Topic that the user is learning."""
 
-    CHOICES = ((True, 'private'),
-                      (False, 'public')
+    CHOICES = (('priv', 'private'),
+                      ('pub', 'public'),
+                      ('group', 'group')
                      )
 
     text = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
-    access = models.BooleanField(choices=CHOICES, default=True);
+    access = models.CharField(max_length=10, choices=CHOICES, default="priv")
     owner = models.ForeignKey(User, on_delete=CASCADE)
+    group = models.ForeignKey(MyGroup, on_delete=CASCADE, blank=True, null=True)
     
+
 
     def __str__(self):
         return self.text

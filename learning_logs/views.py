@@ -1,8 +1,11 @@
 from django.contrib.auth import login
+from django.http.response import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from .forms import TopicAccessForm, TopicForm, EntryForm
+
+from users.models import MyGroup
+from .forms import GroupTopicForm, TopicAccessForm, TopicForm, EntryForm
 from .models import Topic, Entry
 # Create your views here.
 
@@ -16,10 +19,12 @@ def index(request):
 @login_required
 def topics(request):
     """ Display all topics."""
-    topics_public = Topic.objects.filter(access=False).exclude(owner=request.user).order_by('date_added')
+    topics_public = Topic.objects.filter(access="pub").exclude(owner=request.user).order_by('date_added')
     topics_private = Topic.objects.filter(owner=request.user).order_by('date_added')
     context = {'topics_public': topics_public,
                'topics_private': topics_private}
+    
+
     return render(request, 'learning_logs/topics.html', context)
 
 @login_required
@@ -30,7 +35,7 @@ def topic(request, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
     
     if not check_topic_owner(request, topic) and \
-       topic.access:
+       topic.access == "priv":
         raise Http404
     
 
@@ -99,7 +104,7 @@ def new_entry(request, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
     
     if not check_topic_owner(request, topic) and \
-        topic.access:
+        topic.access == "priv":
         raise Http404
 
     if request.method != 'POST':
@@ -124,7 +129,7 @@ def edit_entry(request, entry_id):
     topic = entry.topic
 
     if not check_topic_owner(request, topic) and \
-        topic.access or request.user != entry.creator:
+        topic.access == "priv" or request.user != entry.creator:
         raise Http404
 
     if request.method != 'POST':
@@ -154,3 +159,25 @@ def delete_entry(request, entry_id):
         return redirect('learning_logs:topic', topic.id)    
     
     return render(request,'learning_logs/delete_entry.html', {'topic': topic})
+
+
+
+@login_required
+def group_new_topic(request, group_id):
+    """ Add topic to group """
+    group = get_object_or_404(MyGroup, pk=group_id)
+    if request.method != 'POST':
+        form = GroupTopicForm(group)
+    else:
+        form = GroupTopicForm(group, data=request.POST)
+        if form.is_valid():
+            new_topic = form.save(commit=False)
+            new_topic.group = group
+            new_topic.owner = request.user
+            new_topic.save()
+        
+            return redirect('users:group', group.id)
+    
+    context = {'form': form, 'group': group}
+
+    return render(request,'learning_logs/group_new_topic.html', context)
