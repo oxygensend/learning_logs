@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     #my apps
     'learning_logs',
     'users',
+    'groups',
     #other comapnies apps
     'bootstrap4',
     'debug_toolbar',

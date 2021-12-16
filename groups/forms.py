@@ -5,11 +5,22 @@ from .models import MyGroup
 
 class MyGroupForm(forms.ModelForm):
 
+    def __init__(self, user, *args, **kwargs):
+        super(MyGroupForm, self).__init__(*args, **kwargs)
+        self.user = user;
     class Meta:
         model = MyGroup
         fields = ['name']
         labels = {'name': 'Podaj nazwe'}
 
+    def clean_name(self):
+        user = self.user.groups.filter(name=self.cleaned_data['name'])
+
+        if user.exists():
+            raise ValidationError("Grupa o takiej nazwie już istnieje", code="group_same_name")
+      
+        else:
+            return self.cleaned_data['name']
 class NewMemberForm(forms.Form):
     
     
@@ -21,11 +32,12 @@ class NewMemberForm(forms.Form):
     def clean_username(self):
         username = self.cleaned_data['username']
         user = User.objects.filter(username=username)
-        user1 = user.exclude(groups__name=self.group.name)
-        if not user1.exists():
-            raise ValidationError("Ten użytkownik został już dodany do grupy", code="user_exists_in_group")
-        elif user.exists():
-            return username
-        else:
-
+        user1 = user.filter(groups__name=self.group.name)
+        if not user.exists():
             raise ValidationError("Taki użytkownik nie istnieje", code="user_does_not_exist")
+        elif  user1.exists():
+            raise ValidationError("Ten użytkownik został już dodany do grupy", code="user_exists_in_group")
+        else: 
+            return username
+            
+

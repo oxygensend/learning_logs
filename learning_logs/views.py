@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 
-from users.models import MyGroup
+from groups.models import MyGroup
 from .forms import GroupTopicForm, TopicAccessForm, TopicForm, EntryForm
 from .models import Topic, Entry
 # Create your views here.
@@ -20,7 +20,7 @@ def index(request):
 def topics(request):
     """ Display all topics."""
     topics_public = Topic.objects.filter(access="pub").exclude(owner=request.user).order_by('date_added')
-    topics_private = Topic.objects.filter(owner=request.user).order_by('date_added')
+    topics_private = Topic.objects.filter(owner=request.user).exclude(access='grp').order_by('date_added')
     context = {'topics_public': topics_public,
                'topics_private': topics_private}
     
@@ -91,8 +91,13 @@ def delete_topic(request, topic_id):
         raise Http404
 
     if request.method == 'POST':
-        topic.delete()
-        return redirect('learning_logs:topics')    
+        if topic.group == -1:
+            topic.delete()
+            return redirect('learning_logs:topics')
+        else:
+            group = topic.group.id
+            topic.delete()
+            return redirect('groups:group', group)
     
     return render(request,'learning_logs/delete_topic.html', {'topic': topic})
 
@@ -166,6 +171,11 @@ def delete_entry(request, entry_id):
 def group_new_topic(request, group_id):
     """ Add topic to group """
     group = get_object_or_404(MyGroup, pk=group_id)
+
+
+    if not request.user.groups.filter(id=group.id):
+        raise Http404
+
     if request.method != 'POST':
         form = GroupTopicForm(group)
     else:
@@ -173,10 +183,11 @@ def group_new_topic(request, group_id):
         if form.is_valid():
             new_topic = form.save(commit=False)
             new_topic.group = group
+            new_topic.access = 'grp'
             new_topic.owner = request.user
             new_topic.save()
         
-            return redirect('users:group', group.id)
+            return redirect('groups:group', group.id)
     
     context = {'form': form, 'group': group}
 

@@ -7,7 +7,7 @@
 <ul>
 {% for group in groups %}
 <li><h5>
-    <a href=" {% url 'users:group' group.id %}">{{ group }}</a>
+    <a href=" {% url 'groups:group' group.id %}">{{ group }}</a>
 </h5>
 {%empty%}
     <li><h3>Aktualnie nie masz żadnej grupy.</h3></li>
@@ -15,6 +15,6 @@
 {%endfor%}
 </ul>
 
-<h5><a href="{% url 'users:new_group'%}">Utwórz nową grupe</a></h5>
+<h5><a href="{% url 'groups:new_group'%}">Utwórz nową grupe</a></h5>
 
 {% endblock content %}

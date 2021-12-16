@@ -1,15 +1,21 @@
 {% extends "learning_logs/base.html" %}
 
 {% block page_header %}
-<a href="{% url 'users:groups' %}"><h2> {{group}}</h2></a>
+<a href="{% url 'groups:groups' %}"><h2>{{group}}</h2></a>
 {% endblock page_header %}
 {% block content %}
-<h3>Członkowie</h4>
+<h3>Członkowie</h3>
 <ul>
 {% for user in group.user_set.all %}
-<li><h5>
-    {{ user.username }}
-</h5>
+<li>
+    {% if user == group.admin %}
+    <h5 style=" color:red">{{ user.username }}</h5>
+    {% else %}
+    
+    <h5>{{ user.username }}</h5>
+
+    {% endif %}
+</li>
 {%endfor%}
 </ul>
 
@@ -28,9 +34,12 @@
 </ul>
 <h5><a href="{% url 'learning_logs:group_new_topic' group.id%}">Dodaj nowy temat</a></h5>
 
+
 {% if admin %}
-</br>
-<h5><a href="{% url 'users:add_to_group' group.id %} ">Dodaj do grupy</a></h5>
-<h5><a href="{%  url 'users:delete_group' group.id %}">Usuń grupe</a></h5>
+{% if group.user_set.all|length > 1 %}
+<h5><a href="{% url 'groups:delete_from_group' group.id %}">Usuń z grupy</a></h5>
+{% endif %}
+<h5><a href="{% url 'groups:add_to_group' group.id %}">Dodaj do grupy</a></h5>
+<h5><a href="{%  url 'groups:delete_group' group.id %}">Usuń grupe</a></h5>
 {% endif %}
 {% endblock content %}

@@ -2,16 +2,16 @@ from django.db.models.query import QuerySet
 from django.test import TestCase, testcases
 from django.urls import reverse
 
-from users.models import MyGroup
+from .models import MyGroup
 from .models import Topic, User, Entry
 from .forms import TopicForm, EntryForm, TopicAccessForm
 # Create your tests here.
 
 
 
-def createTopic(topic, user, access=True):
+def createTopic(topic, user, access="priv", group=None):
     """ Create new Topic """
-    return Topic.objects.create(text=topic, owner = user, access=access)
+    return Topic.objects.create(text=topic, owner = user, access=access, group=group)
 
 def createEntry(entry, topic, creator):
     """ Create new Entry """
@@ -57,7 +57,7 @@ class TopicsViewTest(TestCase):
         """ Test adding new public topic (should be displayed in topics_private if user is owner)"""
 
         self.client.login(username='foo', password='foo123')
-        new_topic = createTopic(topic="fooo", user=self.user, access=False)
+        new_topic = createTopic(topic="fooo", user=self.user,access="pub")
         response = self.client.post(reverse('learning_logs:topics'))  
         return self.assertQuerysetEqual(response.context['topics_private'], [new_topic])
 
@@ -67,8 +67,8 @@ class TopicsViewTest(TestCase):
         """ Adding two topics public and private"""
         self.client.login(username='foo', password='foo123')
 
-        new_topic1 = createTopic(topic="fooo", user=self.user, access=False)
-        new_topic = createTopic(topic="fooo2", user=self.user, access=True)
+        new_topic1 = createTopic(topic="fooo", user=self.user,access="pub")
+        new_topic = createTopic(topic="fooo2", user=self.user, access="priv")
         response = self.client.post(reverse('learning_logs:topics'))
         return self.assertQuerysetEqual(response.context['topics_private'], [new_topic1, new_topic])
 
@@ -78,7 +78,7 @@ class TopicsViewTest(TestCase):
         self.client.login(username='foo', password='foo123')
         user = createUser('foo1', 'foo123')
 
-        new_topic = createTopic(topic="fooo", user=user, access=False)
+        new_topic = createTopic(topic="fooo", user=user, access="pub")
         response = self.client.post(reverse('learning_logs:topics'))  
         return self.assertQuerysetEqual(response.context['topics_public'], [new_topic])
 
@@ -98,17 +98,17 @@ class TopicViewTest(TestCase):
     def test_change_access(self):
         """ Test if changing access work properly"""
 
-        topic = createTopic('foo', self.user, True)
+        topic = createTopic('foo', self.user, "priv")
         self.client.login(username='foo', password='foo123')
-        form = TopicAccessForm(instance=topic,data={'access': False})
+        form = TopicAccessForm(instance=topic,data={'access': "pub"})
         self.assertTrue(form.is_valid())
         form.save()
-        return self.assertEquals(topic.access, False)
+        return self.assertEquals(topic.access, "pub")
 
     def test_delete_topic(self):
         """ Test if topic delete properly"""
 
-        topic = createTopic('foo', self.user, True)
+        topic = createTopic('foo', self.user, "priv")
         self.client.login(username='foo', password='foo123')
     
         response = self.client.post(reverse('learning_logs:topics' ))
@@ -131,7 +131,7 @@ class TopicViewTest(TestCase):
         """ Test """
 
         user = createUser('test','test123')
-        topic = createTopic('foo', self.user, True)
+        topic = createTopic('foo', self.user, "priv")
         entry1 = createEntry('test1',topic,self.user)
         entry2 = createEntry('test2',topic, user)
 
@@ -157,7 +157,7 @@ class NewTopicFormTest(TestCase):
         """ If topic with same name exists with the same access display proper message"""
 
         new_topic = createTopic(topic="fooo", user=self.user)        
-        form = TopicForm(self.user, data={'text': 'fooo', 'access':True})
+        form = TopicForm(self.user, data={'text': 'fooo', 'access':"priv"})
         self.assertFalse(form.is_valid())
         
         return self.assertTrue(form.has_error('text',code="topic_exists"))
@@ -235,14 +235,4 @@ class EntryFormTests(TestCase):
         return self.assertQuerysetEqual(response.context['entries'],
                             [])
 
-class GroupTest(TestCase):
-    def setUp(self):
-        self.user = createUser('foo', 'foo123')
-        self.client.login(username='foo', password='foo123')
 
-    def test_creating_new_group(self):
-
-        group = MyGroup.objects.create(name='test_group',admin=self.user)
-        response = self.client.post(reverse('users:groups'))
-
-        return self.assertQuerysetEqual(response.context['groups'], [group])

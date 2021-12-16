@@ -1,13 +1,15 @@
 {% extends "learning_logs/base.html" %}
 {% block page_header %}
   <div class="jumbotron">
-    <h1 class="display-3">Monitoruj postępy w nauce</h1>
+    <h1 class="display-6">Manage your notes in one place...</h1>
 
     {% if not user.is_authenticated %}
     <p class="lead"> Załóż konto, aby rozpocząć korzystanie z aplikacji
-        Learning Log oraz wyświetlić listę poznanych tematów. Gdy nauczysz
-        się czegoś nowego na dany temat, utwórz wpis podsumowujący to,
-        czego się nauczyłeś.
+        Notelly oraz wyświetlić listę poznanych tematów. Możesz czytać tematy
+        różnych użytkowników jak i włączyć się do danego wątku. Studiujesz?
+        Razem ze znajomymi nie macie gdzie przechowywać wspólnych notatek na egazminy?
+        Notelly dostarcza taką opcje. A może jestes samcem alfa i lubisz pisać prywatne
+        notki o swojej ukochanej z podstawówki? Zarejestruj się już dziś i wypróbuj Notelly. 
     </p>
     <a class="btn btn-lg btn-primary" href="{% url 'users:register' %}"
     role="button"> Zarejestruj konto &raquo;</a>

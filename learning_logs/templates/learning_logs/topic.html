@@ -1,12 +1,16 @@
 {% extends "learning_logs/base.html" %}
 {% load bootstrap4 %}
 {% block page_header %}
+{% if  topic.group == None %}
 <h2> <a href="{% url 'learning_logs:topics'%}">{{ topic }}</a></h2>
+{% else %}
+<h2> <a href="{% url 'groups:group' topic.group.id %}">{{ topic }}</a></h2>
+{% endif %}
 {% endblock page_header %}
 
 {% block content %}
 
-{% if form and  topic.group == -1%}
+{% if form and  topic.group == None %}
 <form class="form" method="post" action="{% url 'learning_logs:topic' topic.id %}">
   {% csrf_token %}
   {% bootstrap_form form %}

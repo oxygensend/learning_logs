@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.deletion import CASCADE
 
-from users.models import MyGroup
+from groups.models import MyGroup
 # Create your models here.
 
 class Topic(models.Model):
@@ -10,7 +10,7 @@ class Topic(models.Model):
 
     CHOICES = (('priv', 'private'),
                       ('pub', 'public'),
-                      ('group', 'group')
+                      ('grp', 'group')
                      )
 
     text = models.CharField(max_length=200)

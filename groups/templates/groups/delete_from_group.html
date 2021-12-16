@@ -1,0 +1,21 @@
+{% extends "learning_logs/base.html" %}
+
+{% block page_header %}
+<a href="{% url 'groups:group' group.id %}"><h2> {{group}}</h2></a>
+{% endblock page_header %}
+{% block content %}
+<h3>Członkowie</h3>
+<ul>
+{% for user in group.user_set.all %}
+
+    {% if user != group.admin %}
+    <li><h5>{{ user.username }} <a style="font-size: 13px;" 
+        href="{% url 'groups:delete_user' group.id user.id %}">Usuń</a> </h5>
+        
+    </li>
+
+    {% endif %}
+
+{%endfor%}
+</ul>
+{% endblock content %}
