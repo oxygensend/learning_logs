@@ -1,10 +1,13 @@
 from django.contrib.auth.decorators import login_required
+from django.urls.base import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import generic
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from learning_logs.models import Topic
 from groups.forms import MyGroupForm, NewMemberForm
 from .models import MyGroup
@@ -16,18 +19,44 @@ from .models import MyGroup
 def check_group_admin(group, request):
     return True if group.admin == request.user else False
 
-class GroupsView(generic.ListView):
+class GroupsView(LoginRequiredMixin, generic.ListView):
     template_name= 'groups/groups.html'
     context_object_name = 'groups'
 
     def get_queryset(self):
+        return MyGroup.objects.filter(user=self.request.user)
 
-        return MyGroup.objects.all()
 
-@login_required
-def groups(request):
+class NewGroupView(LoginRequiredMixin, generic.FormView):
+    template_name = 'groups/new_group.html'
+    form_class = MyGroupForm
+    success_url = '/groups/'
 
-    return render(request,'groups/groups.html', {'groups': MyGroup.objects.filter(user=request.user)})
+    def get_form_kwargs(self):
+        kwargs = super(NewGroupView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        new_group = form.save(commit=False)
+        new_group.admin = self.request.user
+        new_group.save()
+        new_group.user_set.add(self.request.user)
+        return super().form_valid(form)
+
+
+class DeleteGroupView(LoginRequiredMixin, generic.DeleteView):
+    model = MyGroup
+    success_url = reverse_lazy("groups:groups")
+    context_object_name = 'group'
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if check_group_admin(self.object, request):
+            return super(DeleteGroupView, self).delete(
+                request, *args, **kwargs)
+        else:
+            raise Http404
 
 @login_required
 def new_group(request):
@@ -66,20 +95,6 @@ def group(request, group_id):
     return render(request,'groups/group.html', context)
 
 
-@login_required
-def delete_group(request, group_id):
-    """Delete group"""
-
-    group= get_object_or_404(MyGroup, pk=group_id);
-
-    if not check_group_admin(group, request):
-        raise Http404
-        
-    if request.method == 'POST':
-        group.delete()
-        return redirect('groups:groups')    
-    
-    return render(request,'groups/delete_group.html', {'group': group})
 
 @login_required
 def add_to_group(request, group_id):
@@ -109,10 +124,8 @@ def delete_from_group(request, group_id):
 
     group = get_object_or_404(MyGroup, pk=group_id)
 
-    if not check_group_admin(group, request):
-        raise Http404
-    
-    if len(group.user_set.all()) < 2:
+    if not check_group_admin(group, request) or \
+        len(group.user_set.all()) < 2:
         raise Http404
     
     return render(request, 'groups/delete_from_group.html', {'group':group})
@@ -120,22 +133,19 @@ def delete_from_group(request, group_id):
 
 @login_required
 def delete_user(request, group_id, user_id):
-   
+    """ Panel confirming the removal of the member """
+
     group = get_object_or_404(MyGroup,pk=group_id)
     user = get_object_or_404(User,pk=user_id)
     
-    if not check_group_admin(group,request):
+    if not check_group_admin(group,request) or \
+        user == group.admin:
         raise Http404
     
-    if user == group.admin:
-        raise Http404
-
     if request.method == 'POST':
-        
         group.user_set.remove(user)
         return redirect('groups:group', group_id)
   
-    
     context = {'user': user, 'group': group}
-  
-    return render(request,'groups/delete_user.html', context)
+
+    return render(request,'groups/member_confirm_delete.html', context)

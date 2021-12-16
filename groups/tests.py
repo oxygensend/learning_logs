@@ -71,7 +71,7 @@ class GroupsViewTest(TestCase):
     
 
 
-class NewGroupFormTest(TestCase):
+class NewGroupViewFormTest(TestCase):
 
     def setUp(self):
         self.user = createUser('foo', 'foo123')
