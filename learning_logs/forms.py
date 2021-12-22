@@ -11,7 +11,7 @@ class TopicForm(forms.ModelForm):
 
         self.owner = user;
         self.fields['access'].choices = CHOICES
-        self.fields['access'] 
+        
         # if group:
         #     self.fields['access'].disable = True;
         # else:

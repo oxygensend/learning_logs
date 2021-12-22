@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
+from users.models import CustomUser
 from django.db.models.deletion import CASCADE
 from django.db.models.fields import CharField
 
@@ -8,6 +9,6 @@ from django.db.models.fields import CharField
 
 class MyGroup(Group):
 
-    admin = models.ForeignKey(User, on_delete=CASCADE)
+    admin = models.ForeignKey(CustomUser, on_delete=CASCADE)
     class meta:
         proxy=True

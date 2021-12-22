@@ -3,7 +3,7 @@ from django.test import TestCase, testcases
 from django.urls import reverse
 
 from .models import MyGroup
-from .models import Topic, User, Entry
+from .models import Topic, CustomUser, Entry
 from .forms import TopicForm, EntryForm, TopicAccessForm
 # Create your tests here.
 
@@ -20,7 +20,7 @@ def createEntry(entry, topic, creator):
 
 def createUser(username, password):
     """ Create new user """
-    return User.objects.create_user(username=username, password=password)
+    return CustomUser.objects.create_user(username=username, password=password)
 
 class TopicsViewTest(TestCase):
     """ Tests for topics view function"""

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.urls.base import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from learning_logs.models import Topic
 from groups.forms import MyGroupForm, NewMemberForm
 from .models import MyGroup
+from users.models import CustomUser
 # Create your views here.
 
 
@@ -110,7 +111,7 @@ def add_to_group(request, group_id):
     else:
         form = NewMemberForm(group, data=request.POST)
         if form.is_valid():
-            user =  User.objects.filter(username=form.cleaned_data['username'])
+            user =  CustomUser.objects.filter(username=form.cleaned_data['username'])
             group.user_set.add(user.get().id)
             return redirect('groups:group', group.id)
 
@@ -136,7 +137,7 @@ def delete_user(request, group_id, user_id):
     """ Panel confirming the removal of the member """
 
     group = get_object_or_404(MyGroup,pk=group_id)
-    user = get_object_or_404(User,pk=user_id)
+    user = get_object_or_404(CustomUser,pk=user_id)
     
     if not check_group_admin(group,request) or \
         user == group.admin:

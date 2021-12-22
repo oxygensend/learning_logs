@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from users.models import CustomUser
 from django.urls import reverse
 from django.contrib import auth
 from django.test.client import Client
@@ -14,7 +14,7 @@ from .views import group
 
 def createUser(username, password):
 
-    return User.objects.create_user(username=username, password=password)
+    return CustomUser.objects.create_user(username=username, password=password)
 
 
 def createGroup(name, admin):
@@ -255,7 +255,7 @@ class AddToGroupFormTest(TestCase):
         user = createUser("test","foo123")
         form = NewMemberForm(self.group,data={"username":"test"})
         self.assertTrue(form.is_valid())
-        user1 =  User.objects.filter(username=form.cleaned_data['username'])
+        user1 =  CustomUser.objects.filter(username=form.cleaned_data['username'])
         self.group.user_set.add(user1.get().id)
         response = self.client.post(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))

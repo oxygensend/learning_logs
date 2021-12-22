@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.auth',
     #my apps
     'learning_logs',
     'users',
@@ -43,7 +44,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     #django apps
     'django.contrib.admin',
-    'django.contrib.auth',
+    
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -139,11 +140,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # my settings
 LOGIN_URL = 'users:login'
+AUTH_USER_MODEL = 'users.CustomUser'
+#my_Settings
 
+LOGOUT_REDIRECT_URL = 'home'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# CONNECTION TO SENDGRID
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_HOST_USER = 'apikey'
+# EMAIL_HOST_PASSWORD = 'sendgrid_password'
+# EMAIL_PORT =
+# EMAIL_USE_TLS = True
 INTERNAL_IPS = {
 
     '127.0.0.1',
 }
+
+
+
 
 # Heroku settings
 

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from users.models import CustomUser
 from django.core.exceptions import ValidationError
 from .models import MyGroup
 
@@ -31,7 +31,7 @@ class NewMemberForm(forms.Form):
     username = forms.CharField(label='Podaj nazwe użytkownika', max_length=100)
     def clean_username(self):
         username = self.cleaned_data['username']
-        user = User.objects.filter(username=username)
+        user = CustomUser.objects.filter(username=username)
         user1 = user.filter(groups__name=self.group.name)
         if not user.exists():
             raise ValidationError("Taki użytkownik nie istnieje", code="user_does_not_exist")

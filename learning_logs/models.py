@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from users.models import CustomUser
 from django.db.models.deletion import CASCADE
 
 from groups.models import MyGroup
@@ -16,7 +16,7 @@ class Topic(models.Model):
     text = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     access = models.CharField(max_length=10, choices=CHOICES, default="priv")
-    owner = models.ForeignKey(User, on_delete=CASCADE)
+    owner = models.ForeignKey(CustomUser, on_delete=CASCADE)
     group = models.ForeignKey(MyGroup, on_delete=CASCADE, blank=True, null=True)
     
 
@@ -30,7 +30,7 @@ class Entry(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     text = models.TextField()
     date_added = models.DateTimeField(auto_now_add=True)
-    creator = models.ForeignKey(User, on_delete=CASCADE);
+    creator = models.ForeignKey(CustomUser, on_delete=CASCADE);
 
     class Meta:
         """Pomocnicza klasa, ktora przechowuje dodatkowe przyfdatne informacje podrzac zarzadzania modelami"""
