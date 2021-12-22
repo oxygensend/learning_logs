@@ -1,4 +1,4 @@
-{% extends "learning_logs/base.html" %}
+{% extends "notes/base.html" %}
 {% load bootstrap4 %}
 {% block page_header %}
 <h2>Zarejestruj się</h2>
@@ -13,7 +13,7 @@
         {% csrf_token %}
         {% bootstrap_form form%}
         <button class="btn btn-primary" name='submit'>Zarejestruj</button>
-        <input type='hidden' name='next' value="{% url 'learning_logs:index' %}">
+        <input type='hidden' name='next' value="{% url 'notes:index' %}">
     </form>
 
 </br>

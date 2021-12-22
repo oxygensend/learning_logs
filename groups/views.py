@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from learning_logs.models import Topic
+from notes.models import Topic
 from groups.forms import MyGroupForm, NewMemberForm
 from .models import MyGroup
 from users.models import CustomUser

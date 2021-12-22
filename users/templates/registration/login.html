@@ -1,4 +1,4 @@
-{% extends "learning_logs/base.html" %}
+{% extends "notes/base.html" %}
 {% load bootstrap4 %}
 
 {% block page_header %}
@@ -17,7 +17,7 @@
         {% buttons %}
         <button class="btn btn-primary" name='submit'>Zaloguj</button>
         {% endbuttons %}
-        <input type='hidden' name='next' value="{% url 'learning_logs:index' %}">
+        <input type='hidden' name='next' value="{% url 'notes:index' %}">
     </form>
 
         

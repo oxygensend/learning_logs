@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('learning_logs', '0001_initial'),
+        ('notes', '0001_initial'),
     ]
 
     operations = [
@@ -28,6 +28,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='entry',
             name='topic',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='learning_logs.topic'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='notes.topic'),
         ),
     ]

@@ -22,7 +22,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('users/', include('django.contrib.auth.urls')),
     path('groups/', include('groups.urls')),
-    path('', include('learning_logs.urls')),
+    path('', include('notes.urls')),
     
 
 ]

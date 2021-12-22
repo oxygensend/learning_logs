@@ -31,7 +31,7 @@ class TopicsViewTest(TestCase):
         """If no topic exists appropriate message displays"""
         
         self.client.login(username='foo', password='foo123')
-        response = self.client.post(reverse('learning_logs:topics'))
+        response = self.client.post(reverse('notes:topics'))
 
         self.assertContains(response, "Nie został jeszcze dodany żaden temat.")
         self.assertQuerysetEqual(response.context['topics_public'], [])
@@ -40,7 +40,7 @@ class TopicsViewTest(TestCase):
     def test_access__if_user_no_logged_in(self):
         """If user is not logged in login panel should display"""
 
-        response = self.client.post(reverse('learning_logs:topics'))
+        response = self.client.post(reverse('notes:topics'))
 
         return  self.assertEqual(response.status_code, 302)
 
@@ -50,7 +50,7 @@ class TopicsViewTest(TestCase):
 
         self.client.login(username='foo', password='foo123')
         new_topic = createTopic(topic="fooo", user=self.user)
-        response = self.client.post(reverse('learning_logs:topics'))
+        response = self.client.post(reverse('notes:topics'))
         return self.assertQuerysetEqual(response.context['topics_private'], [new_topic])
 
     def test_adding_new_public_topic_user_is_owner(self):
@@ -58,7 +58,7 @@ class TopicsViewTest(TestCase):
 
         self.client.login(username='foo', password='foo123')
         new_topic = createTopic(topic="fooo", user=self.user,access="pub")
-        response = self.client.post(reverse('learning_logs:topics'))  
+        response = self.client.post(reverse('notes:topics'))  
         return self.assertQuerysetEqual(response.context['topics_private'], [new_topic])
 
 
@@ -69,7 +69,7 @@ class TopicsViewTest(TestCase):
 
         new_topic1 = createTopic(topic="fooo", user=self.user,access="pub")
         new_topic = createTopic(topic="fooo2", user=self.user, access="priv")
-        response = self.client.post(reverse('learning_logs:topics'))
+        response = self.client.post(reverse('notes:topics'))
         return self.assertQuerysetEqual(response.context['topics_private'], [new_topic1, new_topic])
 
     def test_adding_new_public_topic_user_is_not_owner(self):
@@ -79,7 +79,7 @@ class TopicsViewTest(TestCase):
         user = createUser('foo1', 'foo123')
 
         new_topic = createTopic(topic="fooo", user=user, access="pub")
-        response = self.client.post(reverse('learning_logs:topics'))  
+        response = self.client.post(reverse('notes:topics'))  
         return self.assertQuerysetEqual(response.context['topics_public'], [new_topic])
 
    
@@ -92,7 +92,7 @@ class TopicViewTest(TestCase):
         """If user is not logged in login panel should display"""
 
         topic = createTopic('foo', self.user)
-        response = self.client.post(reverse('learning_logs:topic' ,kwargs={'topic_id':topic.id}))
+        response = self.client.post(reverse('notes:topic' ,kwargs={'topic_id':topic.id}))
         return  self.assertEqual(response.status_code, 302)
 
     def test_change_access(self):
@@ -111,10 +111,10 @@ class TopicViewTest(TestCase):
         topic = createTopic('foo', self.user, "priv")
         self.client.login(username='foo', password='foo123')
     
-        response = self.client.post(reverse('learning_logs:topics' ))
+        response = self.client.post(reverse('notes:topics' ))
         self.assertQuerysetEqual(response.context['topics_private'], [topic])
         topic.delete()
-        response = self.client.post(reverse('learning_logs:topics' ))
+        response = self.client.post(reverse('notes:topics' ))
 
         return self.assertQuerysetEqual(response.context['topics_private'], [])
 
@@ -124,7 +124,7 @@ class TopicViewTest(TestCase):
         user = createUser('test','test123')
         self.client.login(username='test', password='test123')
         topic = createTopic('foo', self.user, False)
-        response = self.client.post(reverse('learning_logs:delete_topic', kwargs={'topic_id':topic.id}))
+        response = self.client.post(reverse('notes:delete_topic', kwargs={'topic_id':topic.id}))
         return self.assertEquals(response.status_code, 404)
 
     def test_firstly_edit_your_entry_secondly_edit_not_your_entry(self):
@@ -136,10 +136,10 @@ class TopicViewTest(TestCase):
         entry2 = createEntry('test2',topic, user)
 
         self.client.login(username='foo', password='foo123')
-        response = self.client.post(reverse('learning_logs:edit_entry', 
+        response = self.client.post(reverse('notes:edit_entry', 
                                             kwargs={'entry_id': entry1.id}))
         self.assertEquals(response.status_code, 200)
-        response = self.client.post(reverse('learning_logs:edit_entry', 
+        response = self.client.post(reverse('notes:edit_entry', 
                                             kwargs={'entry_id': entry2.id}))
         return self.assertEquals(response.status_code, 404)
 
@@ -196,7 +196,7 @@ class EntryFormTests(TestCase):
         """ Adding new entry to topic"""
         response = self.client.get('')
         entry = createEntry('test entry 123', self.topic, response.wsgi_request.user)
-        response = self.client.post(reverse('learning_logs:topic', 
+        response = self.client.post(reverse('notes:topic', 
                             kwargs={'topic_id': self.topic.id}))
         return self.assertQuerysetEqual(response.context['entries'], [entry])    
     
@@ -207,7 +207,7 @@ class EntryFormTests(TestCase):
         entry1 = createEntry('test entry 1', self.topic, response.wsgi_request.user)
         entry2 = createEntry('test entry 2', self.topic, response.wsgi_request.user)
 
-        response = self.client.post(reverse('learning_logs:topic', 
+        response = self.client.post(reverse('notes:topic', 
                             kwargs={'topic_id': self.topic.id}))
         return self.assertQuerysetEqual(response.context['entries'], 
                             [entry2, entry1])               
@@ -219,7 +219,7 @@ class EntryFormTests(TestCase):
         entry = createEntry('test entry 1', self.topic, response.wsgi_request.user)
         form = EntryForm(self.topic,instance=entry, data={'text': 'test entry 1 edit'})
         form.save()
-        response = self.client.post(reverse('learning_logs:topic',
+        response = self.client.post(reverse('notes:topic',
                             kwargs={'topic_id': self.topic.id}))
         return self.assertQuerysetEqual(response.context['entries'],
                             [entry])
@@ -230,7 +230,7 @@ class EntryFormTests(TestCase):
         entry = createEntry('test entry 1', self.topic, self.user)    
         entry.delete()
     
-        response = self.client.post(reverse('learning_logs:topic',
+        response = self.client.post(reverse('notes:topic',
                             kwargs={'topic_id': self.topic.id}))
         return self.assertQuerysetEqual(response.context['entries'],
                             [])

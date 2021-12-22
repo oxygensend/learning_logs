@@ -1,4 +1,4 @@
-{% extends "learning_logs/base.html" %}
+{% extends "notes/base.html" %}
 {% load bootstrap4 %}
 
 {% block page_header %}
@@ -7,7 +7,7 @@
 {% block content %}
 
 
-<form class="form" action="{% url 'learning_logs:group_new_topic' group.id %}" method="post">
+<form class="form" action="{% url 'notes:group_new_topic' group.id %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form %}
     

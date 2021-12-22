@@ -3,8 +3,8 @@ from users.models import CustomUser
 from django.urls import reverse
 from django.contrib import auth
 from django.test.client import Client
-from learning_logs.models import Topic
-from learning_logs.tests import createTopic
+from notes.models import Topic
+from notes.tests import createTopic
 from groups.forms import MyGroupForm, NewMemberForm
 
 from .models import MyGroup
@@ -133,7 +133,7 @@ class GroupViewTest(TestCase):
                              (reverse('groups:groups'),self.group.name), html=True )
     
         self.assertContains(response,'<a href="%s">Dodaj nowy temat</a>' %
-                             reverse('learning_logs:group_new_topic', kwargs={"group_id":self.group.id})
+                             reverse('notes:group_new_topic', kwargs={"group_id":self.group.id})
                              , html=True )
         self.assertNotContains(response,'<a href="%s">Usuń z grupy</a>' %
                              reverse('groups:delete_from_group', kwargs={"group_id":self.group.id})

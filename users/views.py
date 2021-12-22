@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login
 from django.views import generic
 from django.contrib.auth.forms import UserCreationForm
-from learning_logs.models import Topic
+from notes.models import Topic
 from .models import CustomUser
 from .forms import CustomUserCreationForm
 
@@ -21,7 +21,7 @@ def register(request):
         if form.is_valid():
             new_login = form.save()
             login(request, new_login)
-            return redirect('learning_logs:index')
+            return redirect('notes:index')
     
     context = {'form': form}
     return render(request, 'registration/register.html', context)

@@ -1,4 +1,4 @@
-{% extends "learning_logs/base.html"%}
+{% extends "notes/base.html"%}
 
 {% block page_header %}
     <h1> Tematy</h1>
@@ -9,7 +9,7 @@
         {%for topic in topics_private%}
         
             <li><h5>
-                <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
+                <a href="{% url 'notes:topic' topic.id %}">{{ topic }}</a>
             </h5>
             <p style="font-size: 13px;">Dostęp:  {% if topic.access == "priv" %}
                 prywatny
@@ -30,7 +30,7 @@
 
         {%for topic in topics_public%}
             <li><h5>
-                <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
+                <a href="{% url 'notes:topic' topic.id %}">{{ topic }}</a>
             </h5>
             <p style="font-size: 13px;">Autor: {{topic.owner }} {{topic.date_added}}</p>
             </li>
@@ -38,6 +38,6 @@
         {%endfor%}    
     </ul>
 
-    <h5><a href="{% url 'learning_logs:new_topic'%}">Dodaj nowy temat</a></h5>
+    <h5><a href="{% url 'notes:new_topic'%}">Dodaj nowy temat</a></h5>
 
 {% endblock content %}

@@ -14,7 +14,7 @@ def check_topic_owner(request, topic):
   
 def index(request):
     """Home page for Learning logs app."""
-    return render(request,'learning_logs/index.html')
+    return render(request,'notes/index.html')
 
 @login_required
 def topics(request):
@@ -25,7 +25,7 @@ def topics(request):
                'topics_private': topics_private}
     
 
-    return render(request, 'learning_logs/topics.html', context)
+    return render(request, 'notes/topics.html', context)
 
 @login_required
 def topic(request, topic_id):
@@ -46,7 +46,7 @@ def topic(request, topic_id):
                 'entries': entries,
                 
                 }
-        return render(request, 'learning_logs/topic.html', context)
+        return render(request, 'notes/topic.html', context)
     
     if request.method != 'POST':
         form = TopicAccessForm(instance=topic)
@@ -61,7 +61,7 @@ def topic(request, topic_id):
                 'form': form,
                 'changed': changed
             }
-    return render(request, 'learning_logs/topic.html', context)
+    return render(request, 'notes/topic.html', context)
     
 @login_required
 def new_topic(request):
@@ -76,10 +76,10 @@ def new_topic(request):
             new_topic = form.save(commit=False)
             new_topic.owner = request.user
             new_topic.save()
-            return redirect('learning_logs:topics')
+            return redirect('notes:topics')
 
     context = {'form': form}
-    return render(request, 'learning_logs/new_topic.html', context)
+    return render(request, 'notes/new_topic.html', context)
 
 @login_required
 def delete_topic(request, topic_id):
@@ -93,13 +93,13 @@ def delete_topic(request, topic_id):
     if request.method == 'POST':
         if topic.group == -1:
             topic.delete()
-            return redirect('learning_logs:topics')
+            return redirect('notes:topics')
         else:
             group = topic.group.id
             topic.delete()
             return redirect('groups:group', group)
     
-    return render(request,'learning_logs/delete_topic.html', {'topic': topic})
+    return render(request,'notes/delete_topic.html', {'topic': topic})
 
 
 @login_required
@@ -121,10 +121,10 @@ def new_entry(request, topic_id):
             new_entry.creator = request.user
             new_entry.topic = topic
             new_entry.save()
-            return redirect('learning_logs:topic', topic_id)
+            return redirect('notes:topic', topic_id)
         
     context = {'topic': topic, 'form': form}
-    return render(request, 'learning_logs/new_entry.html', context)
+    return render(request, 'notes/new_entry.html', context)
 
 @login_required
 def edit_entry(request, entry_id):
@@ -144,10 +144,10 @@ def edit_entry(request, entry_id):
         if form.is_valid():
         
             form.save()
-            return redirect('learning_logs:topic', topic.id)
+            return redirect('notes:topic', topic.id)
 
     context = {'topic': topic, 'entry': entry, 'form': form}
-    return render(request, 'learning_logs/edit_entry.html', context)
+    return render(request, 'notes/edit_entry.html', context)
     
 
 @login_required
@@ -161,9 +161,9 @@ def delete_entry(request, entry_id):
         
     if request.method == 'POST':
         entry.delete()
-        return redirect('learning_logs:topic', topic.id)    
+        return redirect('notes:topic', topic.id)    
     
-    return render(request,'learning_logs/delete_entry.html', {'topic': topic})
+    return render(request,'notes/delete_entry.html', {'topic': topic})
 
 
 
@@ -191,4 +191,4 @@ def group_new_topic(request, group_id):
     
     context = {'form': form, 'group': group}
 
-    return render(request,'learning_logs/group_new_topic.html', context)
+    return render(request,'notes/group_new_topic.html', context)
