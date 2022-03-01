@@ -12,10 +12,10 @@ For example:
 
 
 ## Stack
-    ### Django
-    ### Python
-    ### sqlite3
-    ### bootstrap
-    ### heroku
+     Django
+     Python
+     sqlite3
+     bootstrap
+     heroku
 
 
