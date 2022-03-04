@@ -30,13 +30,13 @@ class GroupsViewTest(TestCase):
         group = createGroup(name='test_group',admin=self.user)
         group.user_set.add(self.user)
         
-        response = self.client.post(reverse('groups:groups'))
+        response = self.client.get(reverse('groups:groups'))
         self.assertEquals(response.status_code,200)
         return self.assertQuerysetEqual(response.context['groups'], [group])
     
     def test_no_group(self):
 
-        response = self.client.post(reverse('groups:groups'))
+        response = self.client.get(reverse('groups:groups'))
 
         self.assertContains(response, "Aktualnie nie masz żadnej grupy.")
         self.assertQuerysetEqual(response.context['groups'], [])
@@ -48,7 +48,7 @@ class GroupsViewTest(TestCase):
         group.user_set.add(self.user)
         group1.user_set.add(self.user)
 
-        response = self.client.post(reverse('groups:groups'))
+        response = self.client.get(reverse('groups:groups'))
 
         self.assertEquals(response.status_code,200)
         return self.assertQuerysetEqual(response.context['groups'], [group, group1], ordered=False)
@@ -60,12 +60,12 @@ class GroupsViewTest(TestCase):
         group1 = createGroup(name='test_group1',admin=self.user)
         group.user_set.add(user)
         group1.user_set.add(self.user)
-        response = self.client.post(reverse('groups:groups'))
+        response = self.client.get(reverse('groups:groups'))
         self.assertQuerysetEqual(response.context['groups'],[group1])
     
     def test_new_group_link_is_displayed(self):
 
-        response = self.client.post(reverse('groups:groups'))
+        response = self.client.get(reverse('groups:groups'))
         self.assertContains(response, '<a href="%s">Utwórz nową grupe</a>' % reverse('groups:new_group'),
                                  html=True )
     
@@ -81,7 +81,7 @@ class NewGroupViewFormTest(TestCase):
     
     def test_content_of_site(self):
 
-        response = self.client.post(reverse('groups:new_group'))
+        response = self.client.get(reverse('groups:new_group'))
 
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'groups/new_group.html')
@@ -97,7 +97,7 @@ class NewGroupViewFormTest(TestCase):
         new_group.save()
         new_group.user_set.add(self.user)
 
-        response = self.client.post(reverse('groups:groups'))
+        response = self.client.get(reverse('groups:groups'))
         self.assertQuerysetEqual(response.context['groups'],[self.group, new_group], ordered=False)
 
     def test_creating_group_with_existing_name(self):
@@ -123,7 +123,7 @@ class GroupViewTest(TestCase):
     
     def test_content_of_site(self):
         
-        response = self.client.post(reverse("groups:group", 
+        response = self.client.get(reverse("groups:group", 
                     kwargs={"group_id": self.group.id}))
 
         self.assertEquals(response.status_code, 200)
@@ -142,7 +142,7 @@ class GroupViewTest(TestCase):
                              reverse('groups:add_to_group', kwargs={"group_id":self.group.id})
                              , html=True )
         self.assertContains(response,'<a href="%s">Usuń grupe</a>' %
-                             reverse('groups:delete_group', kwargs={"group_id":self.group.id})
+                             reverse('groups:delete_group', kwargs={"pk":f"{self.group.id}"})
                              , html=True )
 
         self.assertQuerysetEqual(response.context['topics'], [])
@@ -154,7 +154,7 @@ class GroupViewTest(TestCase):
         user = createUser("foo1", "foo123")
         self.group.user_set.add(user)
 
-        response = self.client.post(reverse("groups:group", 
+        response = self.client.get(reverse("groups:group", 
                     kwargs={"group_id": self.group.id}))
 
         self.assertQuerysetEqual(response.context['group'].user_set.all(),
@@ -165,7 +165,7 @@ class GroupViewTest(TestCase):
 
         topic = createTopic("test2",self.user,access="grp", group=self.group)
    
-        response = self.client.post(reverse("groups:group", 
+        response = self.client.get(reverse("groups:group", 
                     kwargs={"group_id": self.group.id}))
         
         self.assertQuerysetEqual(response.context['topics'], [topic])
@@ -176,14 +176,14 @@ class GroupViewTest(TestCase):
         topic = createTopic("test2",self.user,access="grp", group=self.group)
         topic1 = createTopic("test1",self.user,access="grp", group=self.group)
 
-        response = self.client.post(reverse("groups:group", 
+        response = self.client.get(reverse("groups:group", 
                     kwargs={"group_id": self.group.id}))
         
         self.assertQuerysetEqual(response.context['topics'], [topic, topic1], ordered=False)
 
     def test_topic_is_no_visible(self):
 
-        response = self.client.post(reverse("groups:group", 
+        response = self.client.get(reverse("groups:group", 
                     kwargs={"group_id": self.group.id}))
         
         self.assertQuerysetEqual(response.context['topics'], [])
@@ -193,7 +193,7 @@ class GroupViewTest(TestCase):
 
         user = createUser('test1','test123')
         self.group.user_set.add(user)
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         
         self.assertContains(response,'<a href="%s">Usuń z grupy</a>' %
@@ -203,7 +203,7 @@ class GroupViewTest(TestCase):
                                  [self.user, user], ordered=False)
         
         self.group.user_set.remove(user)
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         self.assertNotContains(response,'<a href="%s">Usuń z grupy</a>' %
                              reverse('groups:delete_from_group', kwargs={"group_id":self.group.id})
@@ -213,32 +213,32 @@ class GroupViewTest(TestCase):
     
     def test_delete_group(self):
 
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         
         self.assertEquals(response.status_code, 200)
         self.group.delete()
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         self.assertEquals(response.status_code, 404)
-        response = self.client.post(reverse("groups:groups"))
+        response = self.client.get(reverse("groups:groups"))
         self.assertQuerysetEqual(self.user.groups.all(),[])
         self.assertQuerysetEqual(response.context['groups'],[])
 
     def test_if_topics_is_deleted_with_group(self):
 
         topic = createTopic("test2",self.user,access="grp", group=self.group)
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
 
         self.assertQuerysetEqual(response.context['topics'], [topic])
         self.assertEquals(response.status_code, 200)
         self.group.delete()
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         self.assertFalse(Topic.objects.filter(id=topic.id).exists())
         self.assertEquals(response.status_code, 404)
-        response = self.client.post(reverse("groups:groups"))
+        response = self.client.get(reverse("groups:groups"))
         self.assertQuerysetEqual(response.context['groups'],[])
 
 class AddToGroupFormTest(TestCase):
@@ -257,7 +257,7 @@ class AddToGroupFormTest(TestCase):
         self.assertTrue(form.is_valid())
         user1 =  CustomUser.objects.filter(username=form.cleaned_data['username'])
         self.group.user_set.add(user1.get().id)
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         self.assertQuerysetEqual(response.context['group'].user_set.all(),
                                  [self.user, user], ordered=False)
@@ -285,7 +285,7 @@ class DeleteFromGroupTest(TestCase):
     
     def test_no_members_besides_admin(self):
 
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         self.assertNotContains(response,'<a href="%s">Usuń z grupy</a>' %
                              reverse('groups:delete_from_group', kwargs={"group_id":self.group.id})
@@ -294,12 +294,12 @@ class DeleteFromGroupTest(TestCase):
 
         user = createUser("test","foo123")
         self.group.user_set.add(user)
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         self.assertContains(response,'<a href="%s">Usuń z grupy</a>' %
                              reverse('groups:delete_from_group', kwargs={"group_id":self.group.id})
                              , html=True )
-        response = self.client.post(reverse("groups:delete_from_group",
+        response = self.client.get(reverse("groups:delete_from_group",
                     kwargs={"group_id": self.group.id}))
         
         self.assertQuerysetEqual(response.context['group'].user_set.exclude(username=self.user),
@@ -309,7 +309,7 @@ class DeleteFromGroupTest(TestCase):
                              "user_id":user.id}), html=True )
         
         self.group.user_set.remove(user)
-        response = self.client.post(reverse("groups:group",
+        response = self.client.get(reverse("groups:group",
                     kwargs={"group_id": self.group.id}))
         
         self.assertQuerysetEqual(response.context['group'].user_set.all(),
