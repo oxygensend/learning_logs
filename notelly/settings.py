@@ -143,7 +143,7 @@ LOGIN_URL = 'users:login'
 AUTH_USER_MODEL = 'users.CustomUser'
 #my_Settings
 
-LOGOUT_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # CONNECTION TO SENDGRID
