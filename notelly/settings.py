@@ -172,4 +172,4 @@ if os.environ.get('DEBUG') == "TRUE":
 elif os.environ.get("DEBUG") == "FALSE":
     DEBUG = False
 
-DEBUG = True;
+# DEBUG = True
